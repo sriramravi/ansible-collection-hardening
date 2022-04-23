@@ -95,3 +95,9 @@
   when:
     - ansible_facts.selinux.status == 'enabled'
     - os_selinux_enabled | bool
+    
+- import_tasks: cdp_fix.yml
+  tags: apt
+  when:
+    - ansible_facts.os_family == 'Debian'
+    - os_apt_enabled | bool
