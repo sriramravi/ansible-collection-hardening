@@ -1,0 +1,25 @@
+- name: Find cron files and directories
+  find:
+    paths:
+      - /etc
+    patterns:      
+      - cron.daily
+      - cron.d      
+    file_type: any
+  register: cron_directories
+
+- name: Ensure permissions on cron files and directories are configured
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: root
+    group: root
+    mode: og-r
+  with_items: "{{ cron_directories.files }}"
+  
+ - name: Add mount to /etc/fstab
+   lineinfile:
+     dest: /etc/fstab
+     line: 'tmpfs /dev tmpfs nosuid,nodev,noexec 0 0'
+
+- name: Ensure items in /etc/fstab are mounted
+  shell: mount -o remount,rw,noexec /dev
